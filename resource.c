@@ -15,6 +15,7 @@ static int next = 0;
 
 int resource_get(const char *route) {
     for (int i = 0; i < MAX_RESOURCES; i++) {
+        if(list[i] == NULL) continue;
         if (strcmp(list[i]->http_route, route) == 0) {
             return i;
         }
@@ -25,6 +26,7 @@ int resource_get(const char *route) {
 int resource_get_by_coap(const char *coap_name) {
     int ret = -1;
     for (int i = 0; i < MAX_RESOURCES; i++) {
+        if(list[i] == NULL) continue;
         pthread_mutex_lock(&(list[i]->mutex));
         if (strcmp(list[i]->coap_name, coap_name) == 0) {
             ret = i;
