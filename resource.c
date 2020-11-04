@@ -23,12 +23,16 @@ int resource_get(const char *route) {
 }
 
 int resource_get_by_coap(const char *coap_name) {
+    int ret = -1;
     for (int i = 0; i < MAX_RESOURCES; i++) {
+        pthread_mutex_lock(&(list[i]->mutex));
         if (strcmp(list[i]->coap_name, coap_name) == 0) {
-            return i;
+            ret = i;
         }
+        pthread_mutex_unlock(&(list[i]->mutex));
+        if(ret != -1) break;
     }
-    return -1;
+    return ret;
 }
 
 int resource_create(char *coap_address, char *coap_name, char *http_route) {

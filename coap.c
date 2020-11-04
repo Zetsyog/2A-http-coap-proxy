@@ -57,10 +57,9 @@ void response_handler(struct coap_context_t *context, coap_session_t *session,
     coap_option_iterator_init(sent, &opt_iter, COAP_OPT_ALL);
     option = coap_option_next(&opt_iter);
     char *val = (char *)coap_opt_value(option);
-
+    
     struct resource *r = resource_get_by_id(resource_get_by_coap(val));
-
-
+    
     pthread_mutex_lock(&(r->mutex));
     memcpy(r->value, received->data, payload_len);
     r->last_update = time(0);
