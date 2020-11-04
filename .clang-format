@@ -1,0 +1,6 @@
+ColumnLimit: 80
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
