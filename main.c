@@ -18,6 +18,8 @@
 #define PORT 80
 
 int main() {
+    resource_init();
+
     resource_register("192.168.1.90", "temperature", "/temperature");
     resource_register("192.168.1.90", "humidity", "/humidity");
     resource_register("192.168.1.90", "light", "/light");
@@ -42,6 +44,8 @@ int main() {
     } while (c != 'q');
 
     MHD_stop_daemon(daemon);
+
+    resource_dispose();
 
     return 0;
 }
