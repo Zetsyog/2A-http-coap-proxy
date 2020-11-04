@@ -62,6 +62,9 @@ void resource_destroy(int handle) {
 }
 
 struct resource *resource_get_by_id(int handle) {
+    if(handle < 0 || handle > MAX_RESOURCES) {
+        return NULL;
+    }
     return list[handle];
 }
 

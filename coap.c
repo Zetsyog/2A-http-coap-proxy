@@ -56,9 +56,15 @@ void response_handler(struct coap_context_t *context, coap_session_t *session,
     coap_opt_iterator_t opt_iter;
     coap_option_iterator_init(sent, &opt_iter, COAP_OPT_ALL);
     option = coap_option_next(&opt_iter);
+    int len = coap_opt_length(option);
     char *val = (char *)coap_opt_value(option);
+    val[len] = 0;
     
     struct resource *r = resource_get_by_id(resource_get_by_coap(val));
+    if(r == NULL) {
+        log_error(NOERRNO, "can't find resource %s", val);
+        return;
+    }
     
     pthread_mutex_lock(&(r->mutex));
     memcpy(r->value, received->data, payload_len);
