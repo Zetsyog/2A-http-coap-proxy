@@ -74,10 +74,10 @@ struct MHD_Response *route(const char *url) {
     log_info("find route %s", url);
 
     char *val = resource_value(handle);
-    char buf[256];
+    char buf[256] = {0};
     snprintf(buf, 256, "<html><body>%s</body></html>", val);
     
     response = MHD_create_response_from_buffer(
-        strlen(buf), (void *)buf, MHD_RESPMEM_PERSISTENT);
+        strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
     return response;
 }

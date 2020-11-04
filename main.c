@@ -18,11 +18,10 @@
 #define PORT 80
 
 int main() {
-    resource_init();
-
-    resource_register("192.168.1.90", "temperature", "/temperature");
-    resource_register("192.168.1.90", "humidity", "/humidity");
-    resource_register("192.168.1.90", "light", "/light");
+    int handles[3] = {0};
+    handles[0] = resource_create("192.168.1.90", "temperature", "/temperature");
+    handles[1] = resource_create("192.168.1.90", "humidity", "/humidity");
+    handles[2] = resource_create("192.168.1.90", "light", "/light");
 
     struct MHD_Daemon *daemon;
 
@@ -44,8 +43,9 @@ int main() {
     } while (c != 'q');
 
     MHD_stop_daemon(daemon);
-
-    resource_dispose();
+    for(int i = 0; i < 3; i++) {
+        resource_destroy(handles[i]);
+    }
 
     return 0;
 }

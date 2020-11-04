@@ -4,7 +4,7 @@
 #include <semaphore.h>
 #include <time.h>
 
-#define STR_LEN 255
+#define STR_LEN 100
 
 struct resource {
     char coap_name[STR_LEN];
@@ -16,16 +16,14 @@ struct resource {
     time_t last_update;
 };
 
-void resource_init();
-void resource_dispose();
-
 /**
  *  @brief Register a new resource
  *  A resource is a struct that is used to interface an http route with a coap
  * route
  *  @param @struct resource
  */
-int resource_register(char *coap_ip, char *coap_name, char *http_route);
+int resource_create(char *coap_ip, char *coap_name, char *http_route);
+void resource_destroy(int handle);
 
 int resource_get(const char *resource_name);
 
