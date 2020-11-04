@@ -73,7 +73,9 @@ struct MHD_Response *route(const char *url) {
 
     log_info("find route %s", url);
 
-    char *val = resource_value(handle);
+    char val[100] = { 0 };
+    resource_value(handle, val);
+    
     char buf[256] = {0};
     snprintf(buf, 256, "<html><body>%s</body></html>", val);
     

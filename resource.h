@@ -1,7 +1,7 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-#include <semaphore.h>
+#include <pthread.h>
 #include <time.h>
 
 #define STR_LEN 100
@@ -12,7 +12,7 @@ struct resource {
     char value[STR_LEN];
     char coap_address[16];
     int last_cache;
-    int updating;
+    pthread_mutex_t mutex;
     time_t last_update;
 };
 
@@ -38,6 +38,6 @@ int resource_get_by_coap(const char *coap_name);
  *  @param resource_handle The handle to the resource where to get the value
  *  @return
  */
-char *resource_value(int resource_handle);
+void resource_value(int resource_handle, char *dest);
 
 #endif

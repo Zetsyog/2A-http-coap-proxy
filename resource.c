@@ -1,16 +1,16 @@
 #include "resource.h"
-#include "string.h"
 #include "coap.h"
 #include "stdio.h"
-#include "util.h"
 #include "stdlib.h"
+#include "string.h"
+#include "util.h"
 
 #define MAX_RESOURCES 10
 #define ADDRESS "192.168.1.90"
 #define PORT "5683"
 #define CACHE_DURATION 10
 
-struct resource *list[MAX_RESOURCES] = { 0 };
+struct resource *list[MAX_RESOURCES] = {0};
 static int next = 0;
 
 int resource_get(const char *route) {
@@ -40,29 +40,36 @@ int resource_create(char *coap_address, char *coap_name, char *http_route) {
     strcpy(r->http_route, http_route);
     strcpy(r->value, "NoVal");
 
+    pthread_mutex_init(&(r->mutex), NULL);
+
     printf("Registered route %s\n", coap_name);
 
-    return next++;;
+    return next++;
 }
 
 void resource_destroy(int handle) {
-    free(list[handle]);
-    list[handle] = NULL;
+    if (list[handle] != NULL) {
+        pthread_mutex_destroy(&(list[handle]->mutex));
+        free(list[handle]);
+        list[handle] = NULL;
+    }
 }
 
 struct resource *resource_get_by_id(int handle) {
     return list[handle];
 }
 
-char *resource_value(int handle) {
+void resource_value(int handle, char *dest) {
     struct resource *r = list[handle];
 
-    if(time(0) - r->last_update > 10) {
+    if (time(0) - r->last_update > 10) {
         log_info("[COAP] Get: %s", r->coap_name);
         retrieve(r);
     } else {
         log_info("Cache still fresh for %s", r->coap_name);
     }
 
-    return r->value;
+    pthread_mutex_lock(&(r->mutex));
+    strcpy(dest, r->value);
+    pthread_mutex_unlock(&(r->mutex));
 }

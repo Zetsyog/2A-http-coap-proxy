@@ -60,9 +60,13 @@ void response_handler(struct coap_context_t *context, coap_session_t *session,
 
     struct resource *r = resource_get_by_id(resource_get_by_coap(val));
 
+
+    pthread_mutex_lock(&(r->mutex));
     memcpy(r->value, received->data, payload_len);
-    log_info("[COAP] Answer : \"%s\"", received->data);
     r->last_update = time(0);
+    pthread_mutex_unlock(&(r->mutex));
+
+    log_info("[COAP] Answer : \"%s\"", received->data);
 }
 
 int retrieve(struct resource *res) {

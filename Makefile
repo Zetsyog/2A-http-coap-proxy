@@ -1,6 +1,6 @@
 CC?=gcc
 CFLAGS?=-Werror -Wextra -Wall -g
-LDLIBS?=-lmicrohttpd -lcoap-2
+LDLIBS?=-lpthread -lmicrohttpd -lcoap-2
 
 EXEC=proxy
 BINDIR=bin
