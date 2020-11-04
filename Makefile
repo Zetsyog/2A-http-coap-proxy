@@ -1,6 +1,6 @@
 CC?=gcc
 CFLAGS?=-Werror -Wextra -Wall -g
-LDLIBS?=-lpthread -lmicrohttpd -lcoap-2
+LDLIBS?=-lmicrohttpd -lcoap-2
 
 EXEC=proxy
 BINDIR=bin
@@ -15,4 +15,4 @@ all: main.c $(OBJ)
 
 clean:
 	rm -f *.o
-	rm -f $(EXEC)
+	rm -f $(BINDIR)/$(EXEC)

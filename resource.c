@@ -17,7 +17,7 @@ void resource_init() {
     list = calloc(MAX_RESOURCES, sizeof(struct resource));
 }
 
-void resource_destroy() {
+void resource_dispose() {
     free(list);
 }
 
