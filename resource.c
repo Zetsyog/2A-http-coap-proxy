@@ -10,8 +10,16 @@
 #define PORT "5683"
 #define CACHE_DURATION 10
 
-struct resource list[MAX_RESOURCES] = { 0 };
+struct resource *list;
 static int next = 0;
+
+void resource_init() {
+    list = calloc(MAX_RESOURCES, sizeof(struct resource));
+}
+
+void resource_destroy() {
+    free(list);
+}
 
 int resource_get(const char *route) {
     for (int i = 0; i < MAX_RESOURCES; i++) {

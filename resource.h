@@ -16,6 +16,9 @@ struct resource {
     time_t last_update;
 };
 
+void resource_init();
+void resource_dispose();
+
 /**
  *  @brief Register a new resource
  *  A resource is a struct that is used to interface an http route with a coap
