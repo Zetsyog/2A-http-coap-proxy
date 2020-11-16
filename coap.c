@@ -52,20 +52,25 @@ void response_handler(struct coap_context_t *context, coap_session_t *session,
     int payload_len =
         received->alloc_size - received->token_length - received->hdr_size;
 
+    // All these lines only aim is to retrive the uri queried by the coap
+    // request
     coap_opt_t *option;
     coap_opt_iterator_t opt_iter;
     coap_option_iterator_init(sent, &opt_iter, COAP_OPT_ALL);
     option = coap_option_next(&opt_iter);
     int len = coap_opt_length(option);
-    char *val = (char *)coap_opt_value(option);
-    val[len] = 0;
 
-    resource_t handle = resource_get_by_coap(val);
+    char *coap_uri = (char *)coap_opt_value(option);
+    coap_uri[len] = 0;
+
+    // We search for a corresponding resource
+    resource_t handle = resource_get_by_coap(coap_uri);
     if (handle == -1) {
-        log_error(NOERRNO, "can't find resource %s", val);
+        log_error(NOERRNO, "can't find resource %s", coap_uri);
         return;
     }
 
+    // update the value of the resource (must be thread safe)
     resource_value_set(handle, (char *)received->data, payload_len);
 
     log_info("[COAP] Answer : \"%s\"", received->data);

@@ -69,7 +69,7 @@ struct resource *resource_get_by_id(resource_t handle) {
 }
 
 void resource_value_set(resource_t resource, char *new_val, int len) {
-    if (len >= STR_LEN)
+    if (len >= RESOURCE_DBUF_SIZE)
         return;
 
     struct resource *r = list[resource];

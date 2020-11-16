@@ -23,9 +23,12 @@
 
 
 static struct MHD_Daemon *srv_daemon;
-struct MHD_Response *route(const char *url);
+static struct MHD_Response *route(const char *url);
 
-int answer_to_connection(void *cls, struct MHD_Connection *connection,
+/**
+ * Http connection callback
+ */
+static int answer_to_connection(void *cls, struct MHD_Connection *connection,
                          const char *url, const char *method,
                          const char *version, const char *upload_data,
                          size_t *upload_data_size, void **con_cls) {
@@ -38,6 +41,7 @@ int answer_to_connection(void *cls, struct MHD_Connection *connection,
     (void)upload_data_size; /* Unused. Silent compiler warning. */
     (void)con_cls;          /* Unused. Silent compiler warning. */
 
+    // Only accept GET http connection
     if (0 != strcmp(method, "GET"))
         return MHD_NO;
 
@@ -46,13 +50,15 @@ int answer_to_connection(void *cls, struct MHD_Connection *connection,
 
     response = route(url);
 
+    // If the asked route was found by the router
     if (NULL != response) {
+        // Send the response to client
         MHD_add_response_header(response, "Content-Type", "text/html");
         ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
         MHD_destroy_response(response);
 
         return ret;
-    } else {
+    } else { // Else send 404 error
         log_error(NOERRNO, "404 : route not found");
         response = MHD_create_response_from_buffer(
             strlen(error_str), (void *)error_str, MHD_RESPMEM_PERSISTENT);
@@ -69,29 +75,38 @@ int answer_to_connection(void *cls, struct MHD_Connection *connection,
 }
 
 /**
- *  Http router
+ * Http router
+ * @return NULL on error, a pointer to a MHD_Response on success
  */
 struct MHD_Response *route(const char *url) {
     struct MHD_Response *response;
 
+    // Search for a route matching the queried url
     resource_t r = resource_get_by_name(url);
 
+    // if none return NULL
     if (r == -1)
         return NULL;
 
     log_info("find route %s", url);
 
+    // store the resource value in a buf
     char val[100] = {0};
     resource_value(r, val);
 
+    // create the most basic html answer
     char buf[256] = {0};
     snprintf(buf, 256, "<html><body>%s</body></html>", val);
 
+    // create & return a MHD_Response
     response = MHD_create_response_from_buffer(strlen(buf), (void *)buf,
                                                MHD_RESPMEM_MUST_COPY);
     return response;
 }
 
+/**
+ * Simple function to log the IP address of the eth0 interface
+ */
 void print_address(int port) {
     int fd;
     struct ifreq ifr;
