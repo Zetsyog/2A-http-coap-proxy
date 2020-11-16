@@ -11,7 +11,7 @@ Features :
 
 ```c
 // Register your routes with
-resource_t r1 = resource_create("coap_ip", "coap_res_name", "http_route", "cache_duration");
+resource_t r1 = resource_create("coap_ip", "coap_res_name", "http_route", cache_duration);
 // this will query for every http request to YOUR_IP/http_route the coap resource with uri coap_res_name on ip coap_ip
 // caching it if cache_duration > 0 (recommended)
 
