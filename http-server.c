@@ -46,6 +46,7 @@ int answer_to_connection(void *cls, struct MHD_Connection *connection,
 
         return ret;
     } else {
+        log_error(NOERRNO, "404 : route not found");
         response = MHD_create_response_from_buffer(
             strlen(error_str), (void *)error_str, MHD_RESPMEM_PERSISTENT);
         if (response != NULL) {
