@@ -59,17 +59,14 @@ void response_handler(struct coap_context_t *context, coap_session_t *session,
     int len = coap_opt_length(option);
     char *val = (char *)coap_opt_value(option);
     val[len] = 0;
-    
-    struct resource *r = resource_get_by_id(resource_get_by_coap(val));
-    if(r == NULL) {
+
+    resource_t handle = resource_get_by_coap(val);
+    if (handle == -1) {
         log_error(NOERRNO, "can't find resource %s", val);
         return;
     }
-    
-    pthread_mutex_lock(&(r->mutex));
-    memcpy(r->value, received->data, payload_len);
-    r->last_update = time(0);
-    pthread_mutex_unlock(&(r->mutex));
+
+    resource_value_set(handle, (char *)received->data, payload_len);
 
     log_info("[COAP] Answer : \"%s\"", received->data);
 }
@@ -79,13 +76,13 @@ int retrieve(struct resource *res) {
     coap_session_t *session = NULL;
     coap_address_t dst;
     coap_pdu_t *pdu = NULL;
-    int result = EXIT_FAILURE;
+    int result = -1;
 
     coap_startup();
 
     /* resolve destination address where server should be sent */
     if (resolve_address(res->coap_address, "5683", &dst) < 0) {
-        coap_log(LOG_CRIT, "failed to resolve address\n");
+        log_error(NOERRNO, "failed to resolve address");
         goto finish;
     }
 
@@ -94,7 +91,7 @@ int retrieve(struct resource *res) {
 
     if (!ctx ||
         !(session = coap_new_client_session(ctx, NULL, &dst, COAP_PROTO_UDP))) {
-        coap_log(LOG_EMERG, "cannot create client session\n");
+        log_error(NOERRNO, "cannot create client session\n");
         goto finish;
     }
 
@@ -104,7 +101,7 @@ int retrieve(struct resource *res) {
     pdu = coap_pdu_init(COAP_MESSAGE_CON, COAP_REQUEST_GET, 0 /* message id */,
                         coap_session_max_pdu_size(session));
     if (!pdu) {
-        coap_log(LOG_EMERG, "cannot create PDU\n");
+        log_error(NOERRNO, "cannot create PDU\n");
         goto finish;
     }
 
@@ -115,9 +112,15 @@ int retrieve(struct resource *res) {
     /* and send the PDU */
     coap_send(session, pdu);
 
+    pthread_mutex_lock(&(res->lock));
+    res->updating = 1;
+    pthread_mutex_unlock(&(res->lock));
+
+    log_info("[COAP] Get: %s", res->coap_name);
+
     coap_run_once(ctx, 0);
 
-    result = EXIT_SUCCESS;
+    result = 0;
 finish:
 
     coap_session_release(session);
